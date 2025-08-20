@@ -1,0 +1,23 @@
+Circuit 1: Single Transistor Switch
+
+Objective: Design an NMOS transistor switch with specified on-resistance
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- On-resistance: Ron ≤ 500Ω
+- Input logic levels: VIL = 0V, VIH = 1.8V
+- Load resistance: RL = 10kΩ
+- Drain current when ON: ID = 1mA (nominal)
+- Temperature: 27°C
+- Process corner: Typical
+- Substrate: Connected to ground
+
+Success Criteria: Ron ≤ 500Ω when VGS = 1.8V and ID = 1mA
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC analysis minimum
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

@@ -1,0 +1,24 @@
+Circuit 7: Cascode Current Mirror
+
+Objective: Design a cascode current mirror with improved output impedance
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Reference current: Iref = 20μA
+- Current ratio: Iout/Iref = 1:1
+- Output impedance: Rout ≥ 1MΩ
+- Minimum output voltage: Vout_min = 0.4V
+- Current accuracy: ±5%
+- Load capacitance: CL = 1pF
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: Iout = 20μA ± 5% and Rout ≥ 1MΩ
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC + AC analysis
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

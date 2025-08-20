@@ -1,0 +1,25 @@
+Circuit 8: Single-Stage OTA (Operational Transconductance Amplifier)
+
+Objective: Design a single-stage OTA with specified gain and bandwidth
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Bias current: 50μA total
+- DC gain: Av ≥ 40dB (≥100 V/V)
+- Gain-bandwidth product: GBW ≥ 10MHz
+- Load capacitance: CL = 10pF
+- Input common-mode range: 0.5V to 1.3V
+- Output swing: 0.2V to 1.6V
+- Phase margin: PM ≥ 60°
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: Av ≥ 40dB, GBW ≥ 10MHz, PM ≥ 60°
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC + AC analysis
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

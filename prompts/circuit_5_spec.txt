@@ -1,0 +1,25 @@
+Circuit 5: Differential Pair
+
+Objective: Design a differential pair with specified differential gain
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Tail current: Itail = 200μA
+- Differential gain: Ad ≥ 15dB (≥5.6 V/V)
+- Common-mode rejection: CMRR ≥ 40dB
+- Load resistance: RL = 5kΩ (each side)
+- Input common-mode voltage: VCM = 0.9V
+- Differential input signal: 2mV (1mV each side)
+- Frequency of interest: 1kHz
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: Ad ≥ 15dB and CMRR ≥ 40dB at 1kHz
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC + AC analysis
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

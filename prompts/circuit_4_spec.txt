@@ -1,0 +1,23 @@
+Circuit 4: Basic Current Mirror
+
+Objective: Design a basic NMOS current mirror with specified current ratio
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Reference current: Iref = 50μA
+- Current ratio: Iout/Iref = 2:1
+- Output current accuracy: ±10%
+- Minimum output voltage: Vout_min = 0.2V (saturation)
+- Load resistance: Variable (for testing)
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: Iout = 100μA ± 10% when Iref = 50μA
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC analysis minimum
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

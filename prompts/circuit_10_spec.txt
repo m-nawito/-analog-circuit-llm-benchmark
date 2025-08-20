@@ -1,0 +1,26 @@
+Circuit 10: CMOS Comparator
+
+Objective: Design a high-speed CMOS comparator
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Offset voltage: |Vos| ≤ 10mV
+- Propagation delay: tpd ≤ 5ns
+- Output levels: VOL ≤ 0.1V, VOH ≥ 1.7V
+- Input common-mode range: 0.2V to 1.6V
+- Load capacitance: CL = 2pF
+- Overdrive signal: 50mV differential
+- Hysteresis: Optional but preferred
+- Power consumption: ≤ 500μW
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: |Vos| ≤ 10mV, tpd ≤ 5ns, proper output levels
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC + AC + Transient analysis
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

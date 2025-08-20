@@ -1,0 +1,24 @@
+Circuit 3: Source Follower Buffer
+
+Objective: Design a source follower with specified output impedance
+
+Specifications:
+- Supply voltage: VDD = 1.8V
+- Bias current: ID = 200μA
+- Output impedance: Rout ≤ 1kΩ
+- Load capacitance: CL = 5pF
+- Voltage gain: Av ≥ 0.8 V/V
+- Input signal: Small signal, 10mV amplitude
+- Frequency of interest: 10kHz
+- Temperature: 27°C
+- Process corner: Typical
+
+Success Criteria: Rout ≤ 1kΩ and Av ≥ 0.8 at 10kHz
+
+General Conditions:
+- Process: GF 180nm CMOS
+- Supply voltage tolerance: ±5%
+- Simulation: DC + AC analysis
+- All transistor widths ≥ 0.22μm
+- All transistor lengths ≥ 0.18μm
+- SPICE simulator: NGSPICE

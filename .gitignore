@@ -1,0 +1,37 @@
+# SPICE simulation files
+*.lis
+*.log
+*.out
+*.raw
+*.ac0
+*.tr0
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python cache (if using Python scripts)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.coverage
+.pytest_cache/

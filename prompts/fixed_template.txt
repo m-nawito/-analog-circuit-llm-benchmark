@@ -1,0 +1,9 @@
+Given these SPICE models [models], design a [circuit type] with the following specifications: [specs].
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist.

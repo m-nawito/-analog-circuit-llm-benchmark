@@ -1,0 +1,2 @@
+Circuit_ID,Model,Attempt,Failure_Category,Root_Cause,SPICE_Error,Notes
+# Categories: Topological_Errors, Parameter_Calculation_Errors, Design_Constraint_Violations, System_Level_Reasoning_Failures

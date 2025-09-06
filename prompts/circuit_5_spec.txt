@@ -1,25 +1,28 @@
-Circuit 5: Differential Pair
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Differential Pair with the following specifications:
 
-Objective: Design a differential pair with specified differential gain
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - Tail current: Itail = 200μA
 - Differential gain: Ad ≥ 15dB (≥5.6 V/V)
 - Common-mode rejection: CMRR ≥ 40dB
 - Load resistance: RL = 5kΩ (each side)
-- Input common-mode voltage: VCM = 0.9V
+- Input common-mode voltage: VCM = 1.65V
 - Differential input signal: 2mV (1mV each side)
 - Frequency of interest: 1kHz
 - Temperature: 27°C
 - Process corner: Typical
-
-Success Criteria: Ad ≥ 15dB and CMRR ≥ 40dB at 1kHz
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC + AC analysis
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: Ad ≥ 15dB and CMRR ≥ 40dB at 1kHz
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

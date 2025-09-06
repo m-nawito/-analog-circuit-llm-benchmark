@@ -1,0 +1,26 @@
+Version 4
+SymbolType BLOCK
+LINE Normal 0 -48 0 49
+LINE Normal -32 -32 0 -32
+LINE Normal -32 32 0 32
+LINE Normal 32 -48 32 -32
+LINE Normal 32 48 32 32
+LINE Normal 96 0 0 -48
+LINE Normal 0 49 96 0
+LINE Normal 128 0 96 0
+TEXT 15 0 Left 0 2_stage_OTA
+PIN -32 -32 LEFT 0
+PINATTR PinName INP
+PINATTR SpiceOrder 1
+PIN -32 32 LEFT 0
+PINATTR PinName INM
+PINATTR SpiceOrder 2
+PIN 128 0 LEFT 0
+PINATTR PinName OUT
+PINATTR SpiceOrder 3
+PIN 32 -48 LEFT 0
+PINATTR PinName VDD
+PINATTR SpiceOrder 4
+PIN 32 48 LEFT 0
+PINATTR PinName VSS
+PINATTR SpiceOrder 5

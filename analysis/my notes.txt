@@ -1,0 +1,6 @@
+opus is much better at SPICE syntax
+chatgpt5 makes very sophisticated testbenches but fails hard at syntax
+well known circuits are created well even if they are complicated, examples include current mirror and OTA and dual input stage comparator
+less known circuits do not work, even if the are simple, best example is source follower
+Opus is really bad in biasing circuits in general, but the circuit to be biased, for example the differential pair, works if correct biasing is applied
+one could 

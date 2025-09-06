@@ -1,0 +1,12 @@
+Circuit_ID,Circuit_Name,Model,Topology_Correctness,Topology_Reasoning,Analysis_Method,Analysis_Reasoning,Spec_Targeting,Notable_Insights
+# Evaluation scales:,,,,,,,,
+# Topology_Correctness: Correct / Partially Correct / Incorrect,,,,,,,,
+# Topology_Reasoning: Reasonable / Unreasonable,,,,,,,,
+# Analysis_Method: Complete / Incomplete / Wrong  ,,,,,,,,
+# Analysis_Reasoning: Reasonable / Unreasonable,,,,,,,,
+# Spec_Targeting: All specs / Some specs / Misses specs,,,,,,,,
+"# Notable_Insights: Brief highlight (1-2 lines) or ""None""",,,,,,,,
+#,,,,,,,,
+# Example entries:,,,,,,,,
+# 1,Single Transistor Switch,Claude,Correct,Reasonable,Complete,Reasonable,All specs,Good Vgs calculation for Ron target
+# 1,Single Transistor Switch,ChatGPT5,Partially Correct,Reasonable,Incomplete,Unreasonable,Some specs,Missing bias analysis

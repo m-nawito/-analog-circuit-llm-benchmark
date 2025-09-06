@@ -1,1 +1,0 @@
-# Opus Circuit Validation Implementations

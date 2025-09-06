@@ -1,0 +1,64 @@
+* Source Follower Buffer - GF180nm 3.3V
+* Design specifications: ID=200uA, Rout<=1k, Av>=0.8
+
+.title Source Follower Buffer
+
+* Include model file
+.include GF180nm_sm141064_simplified.txt
+
+* Power supply
+VDD vdd 0 DC 3.3
+
+* Input signal - DC bias plus AC small signal
+VIN vin_dc 0 DC 1.65
+VAC vin_dc vin AC 10m
+CIN vin vgate 10u
+
+* Main source follower circuit
+* M1: NMOS source follower
+M1 vdd vgate vout 0 nmos_3p3 W=10u L=0.4u
+
+* M2: PMOS current source load
+M2 vout vbias vdd vdd pmos_3p3 W=25u L=0.22u
+
+* Bias generation circuit
+* M3: Diode-connected PMOS for bias reference
+M3 vbias vbias vdd vdd pmos_3p3 W=25u L=0.22u
+* Rbias: Sets bias current to 200uA
+Rbias vbias 0 10k
+
+* Load capacitor
+CL vout 0 5p
+
+* Analysis commands
+.control
+* DC operating point
+op
+print all
+
+* AC analysis for gain and output impedance
+ac dec 100 1 1meg
+print vdb(vout) vp(vout)
+
+* Extract gain at 10kHz
+meas ac gain_db find vdb(vout) at=10k
+meas ac gain_mag find vm(vout) at=10k
+
+* Calculate output impedance using test current source
+* Add small test current and measure voltage change
+alter CL=5p
+ac dec 10 1k 100k
+* Output impedance can be calculated from output voltage response
+
+* Display results
+print gain_mag
+print @m1[gm]
+print @m1[vgs]
+print @m1[vds]
+print @m1[id]
+print @m2[vgs]
+print @m2[vds]
+print @m2[id]
+
+.endc
+.end

@@ -1,23 +1,26 @@
-Circuit 1: Single Transistor Switch
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Single Transistor Switch with the following specifications:
 
-Objective: Design an NMOS transistor switch with specified on-resistance
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - On-resistance: Ron ≤ 500Ω
-- Input logic levels: VIL = 0V, VIH = 1.8V
+- Input logic levels: VIL = 0V, VIH = 3.3V
 - Load resistance: RL = 10kΩ
 - Drain current when ON: ID = 1mA (nominal)
 - Temperature: 27°C
 - Process corner: Typical
 - Substrate: Connected to ground
-
-Success Criteria: Ron ≤ 500Ω when VGS = 1.8V and ID = 1mA
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC analysis minimum
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: Ron ≤ 500Ω when VGS = 3.3V and ID = 1mA
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

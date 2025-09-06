@@ -1,0 +1,62 @@
+* Single Transistor Switch - GF180nm 3.3V
+* Designer: LLM Circuit Designer
+* Specifications: Ron <= 500 ohm at ID = 1mA, VGS = 3.3V
+
+.title NMOS Switch Design with GF180nm PDK
+
+* Include the GF180nm model file
+.include GF180nm_sm141064_simplified.txt
+
+* Circuit Definition
+* NMOS Switch
+M1 drain gate 0 0 nmos_3p3 W=2.2u L=0.18u
+
+* Test Circuit Components
+* Current source to force 1mA through switch
+Itest 0 drain DC 1m
+* Gate voltage source
+Vgate gate 0 DC 3.3
+* Supply voltage for reference
+Vdd vdd 0 DC 3.3
+
+* Analysis Commands
+* DC operating point
+.op
+
+* DC sweep of gate voltage to see switch characteristics
+.dc Vgate 0 3.3 0.1
+
+* DC sweep of current to characterize Ron
+.dc Itest 0.1m 2m 0.1m
+
+* Control commands
+.control
+run
+* Display operating point
+echo "=== Operating Point Analysis ==="
+print all
+echo "=== Switch Resistance Calculation ==="
+let ron = v(drain)/1m
+echo "VDS = " 
+print v(drain)
+echo "ID = 1mA (forced)"
+echo "Ron = VDS/ID = "
+print ron
+echo "=== Verification ==="
+if ron < 500
+    echo "PASS: Ron is less than 500 ohms"
+else
+    echo "FAIL: Ron exceeds 500 ohms"
+end
+* Check if transistor is in triode region
+let vds_sat = v(gate) - 0.7
+echo "VDS,sat = VGS - VTH = "
+print vds_sat
+if v(drain) < vds_sat
+    echo "Transistor is in TRIODE region (correct for switch operation)"
+else
+    echo "WARNING: Transistor may be in SATURATION region"
+end
+.endc
+
+.end

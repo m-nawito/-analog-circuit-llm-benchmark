@@ -1,0 +1,109 @@
+* ================================================================
+* Two-Stage OTA (GF180 3.3V, Typical) — Av≥60dB, GBW≥20MHz, PM≥60°, SR≥5V/us
+* ================================================================
+
+* --- Models (GF180 3.3V NMOS/PMOS, Typical) ---
+
+*.include "/mnt/data/GF180nm_sm141064_simplified.txt"
+
+.include "GF180nm_sm141064_simplified.txt"
+
+
+.options savecurr
+.temp 27
+.param VDDVAL=3.3
+
+* -------------------------
+* OTA Subcircuit
+* Pins:  inp inm vdd vss out
+* -------------------------
+.subckt OTA2 inp inm vdd vss out
+
+* === Stage-1: NMOS diff pair with PMOS mirror load ===
+* Sizing chosen for low Vov (~70–90 mV) and higher ro (L >= 0.6um)
+
+* Tail current (ideal, sets 20uA total)
+Itail ntail vss 20u
+
+* Input NMOS pair
+* drain gate source bulk model W L
+M1   nd1  inp   ntail vss nmos_3p3 W=60u L=0.6u
+M2   n1   inm   ntail vss nmos_3p3 W=60u L=0.6u
+
+* PMOS active load mirror (1:1)
+M3   nd1  nd1   vdd  vdd pmos_3p3 W=30u L=0.6u  
+* diode-connected
+M4   n1   nd1   vdd  vdd pmos_3p3 W=30u L=0.6u
+
+* === Stage-2: NMOS common-source + ideal PMOS current source load ===
+* The ideal load ensures precise bias of ~80uA from VDD to OUT.
+* The NMOS device provides transconductance.
+M6   out  n1    vss  vss nmos_3p3 W=40u L=1.0u
+
+* Ideal current source load (from VDD to OUT): 80uA
+I2   vdd  out 80u
+
+* === Miller Compensation with LHP zero ===
+* RZ in series with CC from n1 to out
+RZ   n1   ncz   1.5k
+CC   ncz  out   2p
+
+.ends OTA2
+
+* ================================================================
+* TESTBENCH A — OPEN-LOOP AC (via DC-short/AC-open inductor)
+* ================================================================
+VDD_A vdd_a 0 {VDDVAL}
+VIN_A inp_a 0 AC 1 DC 1.65
+* Unity follower connection for DC bias but open for AC:
+* Large inductor behaves ~short at DC, ~open at AC.
+LFB_A out_a inm_a 1e9
+RSH_A out_a inm_a 1e12   ; numerical helper
+
+* Load capacitance
+CL_A out_a 0 20p
+
+* Instantiate OTA
+XOA  inp_a inm_a vdd_a 0 out_a OTA2
+
+* --- Analyses (AC open-loop) ---
+.op
+.ac dec 200 1 1e8
+
+* Useful AC measures
+.meas ac A0_1Hz  FIND vdb(out_a) AT=1
+*.meas ac UGF    WHEN vdb(out_a)=0
+*.meas ac PH_UGF FIND vp(out_a) AT=UGF
+.meas ac PM     param='180 + PH_UGF'
+
+* Supply current (quiescent of this bench)
+.meas op IDD_A  param='-I(VDD_A)'
+
+* ================================================================
+* TESTBENCH B — TRANSIENT (Unity-Gain Follower for SR)
+* ================================================================
+VDD_T vdd_t 0 {VDDVAL}
+
+* Step around mid-supply: 1.65V -> 2.65V (1V step), fast edge
+VSTEP_T inp_t 0 PULSE(1.65 2.65 0n 10n 10n 3u 6u)
+* Unity feedback (direct)
+RFB_T out_t inm_t 0.1
+
+* Load capacitance
+CL_T out_t 0 20p
+
+* Instantiate OTA
+XOT  inp_t inm_t vdd_t 0 out_t OTA2
+
+* --- Analyses (Transient) ---
+.tran 0.05u 8u 0u 0.01u
+
+* Slew-rate measurement (10–90% on 1V step => 0.8V span)
+.meas tran T10  TRIG v(out_t) VAL=1.75 RISE=1
+.meas tran T90  TRIG v(out_t) VAL=2.55 RISE=1
+.meas tran SR_POS param='(0.8)/(T90 - T10)'
+
+* Supply current in this bench
+.meas op IDD_T param='-I(VDD_T)'
+
+.end

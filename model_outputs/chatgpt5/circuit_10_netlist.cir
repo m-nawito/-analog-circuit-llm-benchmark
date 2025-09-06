@@ -1,0 +1,121 @@
+* GF180 3.3V CMOS Comparator (rail-to-rail preamp + regenerative buffer)
+* Specs target: |Vos|<=10mV, tpd<=5ns @ CL=2pF, VOH>=3.1V, VOL<=0.2V, P<=500uW
+
+************ Models ************
+.include "GF180nm_sm141064_simplified.txt"
+
+************ Global params & supplies ************
+.param VDD=3.3 VCM=1.65
+VDD vdd 0 {VDD}
+
+************ Comparator subcircuit ************
+* Pins: INP INN OUT VDD VSS
+.subckt comp_rr INP INN OUT VDD VSS
+
+* --- Node naming ---
+* vpre : preamp sum node -> first inverter input
+* ns   : NMOS pair tail node
+* sp   : PMOS pair source (common tail at top)
+* ndl  : NMOS-pair diode-branch drain
+* nd2  : PMOS-pair diode-branch drain
+* v1   : internal first inverter output
+
+* ===== NMOS input pair with PMOS mirror (boosts when INP>INN => vpre UP) =====
+MNM_L ndl INP ns VSS nmos_3p3 L=0.5u W=40u
+MNM_R vpre INN ns VSS nmos_3p3 L=0.5u W=40u
+
+* Tail current source (self-biased mirror)
+MNT ns VBN VSS VSS nmos_3p3 L=1u W=12u
+MNB VBN VBN VSS VSS nmos_3p3 L=1u W=10u
+RBN VDD VBN 47k
+
+* PMOS active-load mirror for NMOS pair
+MPP_D VDD ndl ndl VDD pmos_3p3 L=0.5u W=20u      * diode
+MPP_O VDD ndl vpre VDD pmos_3p3 L=0.5u W=20u     * mirror to output node
+
+* ===== PMOS input pair with NMOS mirror (also drives vpre UP when INP>INN) =====
+MPM_L nd2 INP sp  VDD pmos_3p3 L=0.5u W=80u
+MPM_R vpre INN sp VDD pmos_3p3 L=0.5u W=80u
+
+* PMOS "tail" (current source to VDD), self-biased
+MPT VDD VBP sp VDD pmos_3p3 L=1u W=12u
+MPB VDD VBP VBP VDD pmos_3p3 L=1u W=10u
+RBP VBP 0 47k
+
+* NMOS active-load mirror for PMOS pair
+MNN_D nd2 nd2 VSS VSS nmos_3p3 L=0.5u W=20u      
+* diode (to GND)
+MNN_O vpre nd2 VSS VSS nmos_3p3 L=0.5u W=20u     
+* sink at vpre
+
+* ===== Regenerative buffer (two inverters) =====
+* INV1: fast regeneration
+MP1 v1 vpre VDD VDD pmos_3p3 L=0.18u W=120u
+MN1 v1 vpre VSS VSS nmos_3p3 L=0.18u W=60u
+
+* Optional very-weak positive feedback (Schmitt-like)
+RHYST vout vpre 100meg
+
+* INV2: output driver
+MP2 OUT v1 VDD VDD pmos_3p3 L=0.18u W=240u
+MN2 OUT v1 VSS VSS nmos_3p3 L=0.18u W=120u
+
+.ends comp_rr
+
+************ TRANSIENT (speed, levels) ************
+* 50 mV differential step at 5 ns around VCM
+BVP vinp 0 v = { VCM + ( time>5n ? 25m : -25m ) }
+BVN vinn 0 v = { VCM - ( time>5n ? 25m : -25m ) }
+
+XU1 vinp vinn vout vdd 0 comp_rr
+CLOAD vout 0 2p
+
+************ AC (small-signal around VCM) ************
+* Separate instance for AC so time sources don't interfere
+VAC_P vinp_ac 0 AC 1 DC {VCM}
+VAC_N vinn_ac 0 AC 0 DC {VCM}
+XU2 vinp_ac vinn_ac vout_ac vdd 0 comp_rr
+
+************ OFFSET (slow ramp to extract Vos) ************
+* Sweep -20 mV -> +20 mV over 1 us around VCM
+BVP_OFF vinp_off 0 v = { VCM + (-20m + 40m*time/1u) }
+BVN_OFF vinn_off 0 v = { VCM - (-20m + 40m*time/1u) }
+XU3 vinp_off vinn_off vout_off vdd 0 comp_rr
+CLOAD_OFF vout_off 0 0.1p
+
+************ Analyses, options, measures ************
+.options method=gear reltol=1e-3 vabstol=1e-6 iabstol=1e-12
+.temp 27
+
+.control
+set noaskquit
+
+* --- Operating point (checks bias headrooms)
+op
+
+* --- AC gain of preamp+buffer around VCM
+ac dec 100 1e3 100e6
+* (Gain is |V(vout_ac)| since Vinp_ac has AC=1)
+meas ac AV_1k  find mag(v(vout_ac)) at=1k
+meas ac AV_1M  find mag(v(vout_ac)) at=1e6
+
+* --- Transient for propagation delay & logic levels
+save all
+tran 10p 30n
+meas tran TPD_RISE  trig v(vinp)-v(vinn) val=0 cross=1  targ v(vout) val={VDD/2} cross=1
+meas tran TPD_FALL  trig v(vinp)-v(vinn) val=0 cross=2  targ v(vout) val={VDD/2} cross=2
+meas tran VOL       min  v(vout) from=10n to=20n
+meas tran VOH       max  v(vout) from=10n to=20n
+
+* --- Transient for input-referred offset (Vos)
+reset
+tran 1n 1u
+meas tran T_X   when v(vout_off)={VDD/2} cross=1
+meas tran VINP_AT  find v(vinp_off) at=T_X
+meas tran VINN_AT  find v(vinn_off) at=T_X
+meas tran VOS param='VINP_AT - VINN_AT'
+
+quit
+.endc
+
+.end

@@ -4,6 +4,7 @@ Explain your design decisions and calculations in detail, including:
 - Design approach and topology choice
 - All equations used
 - Component value calculations
+- Testbench approach and analysis choice
 - Verification of operating conditions
 
-Provide the complete NGSPICE netlist.
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

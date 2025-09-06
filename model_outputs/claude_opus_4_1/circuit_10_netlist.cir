@@ -1,0 +1,88 @@
+* High-Speed CMOS Comparator - GF180nm 3.3V
+* Specifications: tpd<5ns, Vos<10mV, Power<500uW
+
+.title CMOS Comparator Design
+
+* Include model file
+.include GF180nm_sm141064_simplified.txt
+
+* Power supply
+vdd vdd 0 dc 3.3
+vss vss 0 dc 0
+
+* Input differential pair (PMOS)
+M1 vout_diff vinp vcm_tail vdd pmos_3p3 W=10u L=0.36u
+M2 vout_single vinn vcm_tail vdd pmos_3p3 W=10u L=0.36u
+
+* Current mirror load (NMOS)
+M3 vout_diff vout_diff vss vss nmos_3p3 W=4u L=0.36u
+M4 vout_single vout_diff vss vss nmos_3p3 W=4u L=0.36u
+
+* Tail current source
+M5 vcm_tail vbias vss vss nmos_3p3 W=8u L=0.72u
+
+* Bias generation circuit
+M6 vbias vbias vss vss nmos_3p3 W=2u L=0.72u
+M7 vbias vdd_half vdd vdd pmos_3p3 W=4u L=0.72u
+Rbias vdd vdd_half 33k
+
+* Output inverter chain for rail-to-rail swing
+* Stage 1 - Minimum size
+M8 vinv1 vout_single vdd vdd pmos_3p3 W=0.44u L=0.18u
+M9 vinv1 vout_single vss vss nmos_3p3 W=0.22u L=0.18u
+
+* Stage 2 - 3x size
+M10 vinv2 vinv1 vdd vdd pmos_3p3 W=1.32u L=0.18u
+M11 vinv2 vinv1 vss vss nmos_3p3 W=0.66u L=0.18u
+
+* Stage 3 - 9x size (output driver)
+M12 vout vinv2 vdd vdd pmos_3p3 W=3.96u L=0.18u
+M13 vout vinv2 vss vss nmos_3p3 W=1.98u L=0.18u
+
+* Load capacitance
+CL vout 0 2p
+
+* Test inputs
+Vinp vinp 0 dc 1.65
+Vinn vinn 0 dc 1.65
+
+* Testbench for characterization
+.control
+
+* Operating point analysis
+op
+print all
+
+* DC sweep for offset voltage measurement
+dc Vinp 1.64 1.66 0.0001
+plot v(vout) vs v(vinp)
+meas dc vos find v(vinp)-1.65 when v(vout)=1.65 cross=1
+
+* AC analysis for frequency response
+ac dec 10 1 1G
+plot vdb(vout) vp(vout)
+
+* Transient analysis for propagation delay
+* Apply 50mV overdrive step
+alter Vinp dc = 1.625
+alter Vinn dc = 1.675
+tran 0.1n 50n
+plot v(vinp) v(vinn) v(vout)
+meas tran tpd_rise trig v(vinp) val=1.65 rise=1 targ v(vout) val=1.65 rise=1
+meas tran tpd_fall trig v(vinp) val=1.65 fall=1 targ v(vout) val=1.65 fall=1
+
+* Power consumption measurement
+meas tran avg_current avg i(vdd) from=10n to=40n
+let power = avg_current * -3.3
+print power
+
+* Input common-mode range test
+foreach vcm 0.5 1.0 1.5 2.0 2.5 2.8
+  alter Vinp dc = $vcm
+  alter Vinn dc = $vcm + 0.001
+  op
+  print v(vout)
+end
+
+.endc
+.end

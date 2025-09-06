@@ -1,0 +1,65 @@
+* Differential Pair with Current Mirror Load
+* GF 180nm Process, VDD = 3.3V
+* Target: Ad >= 25dB, Rout >= 50kohm
+
+.title Differential Pair with Current Mirror Load
+
+* Include model file
+.include GF180nm_sm141064_simplified.txt
+
+* Power supply
+VDD vdd 0 DC 3.3
+VSS vss 0 DC 0
+
+* Input signals
+* Common mode = 1.65V, differential = 1mV
+VIN_P vin_p 0 DC 1.65 AC 0.5m
+VIN_N vin_n 0 DC 1.65 AC -0.5m
+
+* Load capacitance
+CL vout 0 2p
+
+* Main Circuit
+* NMOS Differential Pair
+M1 vout1 vin_p vtail vss nmos_3p3 W=10u L=0.4u
+M2 vout vin_n vtail vss nmos_3p3 W=10u L=0.4u
+
+* PMOS Current Mirror Load
+M3 vout1 vout1 vdd vdd pmos_3p3 W=20u L=0.3u
+M4 vout vout1 vdd vdd pmos_3p3 W=20u L=0.3u
+
+* Tail Current Source
+M5 vtail vbias vss vss nmos_3p3 W=20u L=0.4u
+
+* Bias Circuit for Tail Current
+* Simple current mirror to generate 100uA
+IREF vdd vref 100u
+M6 vref vref vss vss nmos_3p3 W=10u L=1u
+M7 vbias vref vss vss nmos_3p3 W=20u L=0.4u
+
+* Analysis Commands
+* DC Operating Point
+.op
+
+* AC Analysis for gain and output resistance
+.ac dec 100 1 1meg
+
+* DC sweep to verify operating range
+.dc VIN_P 1.5 1.8 0.01
+
+* Transient analysis for time domain response
+.tran 1u 10m
+
+* Output formatting
+.control
+run
+print all
+* Display operating point
+show m1 m2 m3 m4 m5
+* AC gain at 1kHz
+print db(v(vout)/v(vin_p,vin_n))
+* Output resistance calculation
+print v(vout)/i(vdd)
+.endc
+
+.end

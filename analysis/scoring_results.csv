@@ -1,2 +1,0 @@
-Circuit_ID,Model,Attempt,Functional_Correctness,Topology_Selection,Component_Sizing,Reasoning_Quality,Total_Score,Success
-# Scoring: Functional_Correctness (40%), Topology_Selection (20%), Component_Sizing (20%), Reasoning_Quality (20%)

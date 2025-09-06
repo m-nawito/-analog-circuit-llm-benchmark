@@ -1,26 +1,29 @@
-Circuit 9: Two-Stage OTA
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Two-Stage OTA with the following specifications:
 
-Objective: Design a two-stage OTA with compensation
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - Total bias current: 100μA
 - DC gain: Av ≥ 60dB (≥1000 V/V)
 - Gain-bandwidth product: GBW ≥ 20MHz
 - Phase margin: PM ≥ 60°
 - Load capacitance: CL = 20pF
-- Input common-mode range: 0.4V to 1.4V
-- Output swing: 0.1V to 1.7V
+- Input common-mode range: 0.8V to 2.5V
+- Output swing: 0.2V to 3.1V
 - Slew rate: SR ≥ 5V/μs
 - Temperature: 27°C
 - Process corner: Typical
-
-Success Criteria: Av ≥ 60dB, GBW ≥ 20MHz, PM ≥ 60°, SR ≥ 5V/μs
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC + AC + Transient analysis
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: Av ≥ 60dB, GBW ≥ 20MHz, PM ≥ 60°, SR ≥ 5V/μs
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

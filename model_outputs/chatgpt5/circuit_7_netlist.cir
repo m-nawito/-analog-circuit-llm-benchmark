@@ -1,0 +1,66 @@
+* Cascode Current Mirror (GF180, 3.3V, 20uA, 1:1, Rout >= 1MΩ)
+* Wide-swing NMOS cascoded sink mirror with ideal cascode-bias source
+
+***************************************
+* Models
+***************************************
+.include "GF180nm_sm141064_simplified.txt"
+.temp 27
+.options savecurr
+
+***************************************
+* Parameters
+***************************************
+.param VDD=3.3
+.param IREF=20u
+.param VB=1.1          ; cascode gate bias ~ Vth + 2*Vov (set by bias block)
+.param VOUT_BIAS=1.2   ; operating bias for AC/TF
+
+***************************************
+* Supplies & bias
+***************************************
+VDD    VDD   0     {VDD}
+VBIAS  VB    0     {VB}
+
+***************************************
+* Reference branch (forces IREF through M3-M1 stack)
+***************************************
+IREFSRC  VDD  NREFTOP   {IREF}
+M3   NREFTOP  VB   NREF   0   nmos_3p3  W=30u  L=0.6u
+M1   NREF     NREF 0     0   nmos_3p3  W=30u  L=0.6u   ; diode-connected (D=G=NREF)
+
+***************************************
+* Output branch (mirrored 1:1)
+***************************************
+M4   OUT      VB   NINT   0   nmos_3p3  W=30u  L=0.6u  ; cascode
+M2   NINT     NREF 0      0   nmos_3p3  W=30u  L=0.6u  ; mirror device
+
+* Output load & probing
+VOUT OUT  0   {VOUT_BIAS}
+CLOAD OUT 0   1p
+
+* Small-signal current injection to read Rout
+ITEST OUT 0   DC 0  AC 1
+
+***************************************
+* Analyses
+***************************************
+* 1) DC sweep of output voltage to check compliance & accuracy
+.dc VOUT 0 3.3 0.05
+.meas DC Iout_at_0p6V  FIND  -I(VOUT)  AT=0.6
+.meas DC Ierr_percent  PARAM  100*(Iout_at_0p6V-20u)/20u
+
+* 2) Supply tolerance (±5%)
+.step param VDD 3.135 3.465 0.165
+.meas DC Iout_at_1p2V  FIND  -I(VOUT)  AT=1.2
+
+* 3) AC Rout at ~DC and 1 kHz via AC=1A injection
+.op
+.ac dec 50 1 1e6
+.meas AC Rout_dc  FIND  mag(V(OUT)) AT=1
+.meas AC Rout_1k  FIND  mag(V(OUT)) AT=1k
+
+* 4) Alternative: TF method for DC Rout
+.tf V(OUT) ITEST
+
+.end

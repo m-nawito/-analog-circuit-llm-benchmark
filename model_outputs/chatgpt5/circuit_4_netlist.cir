@@ -1,0 +1,85 @@
+* GF180 3.3V NMOS Basic Current Mirror, 2:1 ratio
+* Spec targets: Iref=50uA, Iout=100uA ±10%, Vout_min ~0.3V, VDD=3.3V±5%
+* Simulator: NGSPICE
+
+*************************************
+* Include GF180 3.3V typical models *
+*************************************
+.include "GF180nm_sm141064_simplified.txt"
+
+*************************************
+* Global definitions
+*************************************
+.options nomod post
+.temp 27
+
+*************************************
+* Parameters (easily tweakable)
+*************************************
+.param LCH = 0.50u
+.param W1  = 12.5u   ; reference device width
+.param W2  = 25u     ; output device width (2:1 ratio)
+.param VDDVAL = 3.3
+
+*************************************
+* Sources
+*************************************
+VDD   VDD   0   {VDDVAL}
+
+* Reference current source (from VDD into M1 drain/gate node):
+IREF  VDD   VREF  DC 50u
+
+* --- Alternative reference with resistor from VDD (comment out IREF above) ---
+* .param RREF =  (3.3-0.9)/50u   ; rough first guess; refine via .op if you want
+* RREF  VDD   VREF  {RREF}
+* (Note: Using a resistor ties Iref to VDD and VGS; the ideal current source is
+* better for evaluating mirror ratio independently of VDD.)
+
+*************************************
+* Mirror devices (NMOS current sink)
+*************************************
+* M1: Diode-connected reference transistor
+M1  VREF  VREF  0  0  nmos_3p3  W={W1}  L={LCH}
+
+* M2: Output transistor (2x width → 2x current ideally)
+M2  VOUT  VREF  0  0  nmos_3p3  W={W2}  L={LCH}
+
+*************************************
+* Output compliance sweep fixture
+*************************************
+* Force VOUT with a DC source we sweep from 0→3.3 V to see compliance region.
+VX   VOUT  0   0
+
+*************************************
+* Analyses
+*************************************
+* 1) Operating point (useful to see VGS at reference node)
+.op
+
+* 2) Compliance sweep across VOUT for three VDD values (±5%)
+.step param VDDVAL list 3.135 3.3 3.465
+.dc VX  0  3.3  0.01
+
+*************************************
+* Measurements (success criteria @ Vout = 0.3V)
+*************************************
+* Note: @mX[id] is device drain current (positive from drain→source).
+* At VOUT=0.3V, capture Iout and ratio.
+.meas dc IOUT_0p3  find  @m.M2[id]  when v(VOUT)=0.3
+.meas dc IREF_0p3  find  @m.M1[id]  when v(VOUT)=0.3
+.meas dc RATIO_0p3 param='IOUT_0p3/IOREF_0p3'
+
+* Also capture VGS of M1 (≈ VGS of M2) to infer Vov (~VDS,sat)
+.meas dc VGS_REF_0p3  find  v(VREF)  when v(VOUT)=0.3
+
+* Optional: at a comfortable headroom (e.g., VOUT=1.0V)
+.meas dc IOUT_1V  find  @m.M2[id]  when v(VOUT)=1.0
+.meas dc RATIO_1V param='IOUT_1V/IOREF_0p3'
+
+*************************************
+* Outputs
+*************************************
+* Save currents and key nodes for plotting in ngspice
+.save v(VREF) v(VOUT) @m.M1[id] @m.M2[id]
+
+.end

@@ -1,1 +1,0 @@
-# ChatGPT Circuit Validation Implementations

@@ -1,0 +1,73 @@
+ Basic NMOS Current Mirror - 2:1 Ratio
+* Specifications: Iref=50uA, Iout=100uA, VDD=3.3V
+* GF180nm Process
+
+.title Basic Current Mirror 2to1 Ratio
+
+* Include GF180nm MOSFET models
+.include GF180nm_sm141064_simplified.txt
+
+* Circuit Implementation
+* Power supply
+Vdd vdd 0 DC 3.3
+
+* Reference current branch
+* R1 sets reference current Iref = 50uA
+R1 vdd gate 47k
+
+* Current mirror transistors
+* M1: Reference transistor (diode-connected)
+M1 gate gate 0 0 nmos_3p3 W=4u L=0.25u
+
+* M2: Output transistor (2x W/L ratio for 2:1 current ratio)
+M2 out gate 0 0 nmos_3p3 W=8u L=0.25u
+
+* Test load - voltage source for output characterization
+Vout out 0 DC 1.65
+
+* Simulation Commands
+.control
+* Operating point analysis
+op
+echo "Operating Point Analysis:"
+print v(gate) v(out)
+print @m1[id] @m2[id]
+let current_ratio = @m2[id]/@m1[id]
+print current_ratio
+
+* DC sweep of output voltage
+dc Vout 0 3.3 0.01
+plot -i(Vout) vs v(out) xlabel 'Output Voltage [V]' ylabel 'Output Current [A]' title 'Current Mirror Output Characteristic'
+
+* Extract key parameters at Vout = 1.65V (mid-supply)
+alter Vout = 1.65
+op
+echo "Performance at Vout = 1.65V:"
+let iref = @m1[id]
+let iout = -i(Vout)
+let ratio = iout/iref
+let error_percent = 100*(iout-100u)/100u
+print iref iout ratio error_percent
+
+* Verify operation at minimum output voltage
+alter Vout = 0.3
+op
+echo "Performance at Vout_min = 0.3V:"
+let iout_min = -i(Vout)
+let error_min = 100*(iout_min-100u)/100u
+print iout_min error_min
+print @m2[vds] @m2[vgs]
+let vdsat = @m2[vgs] - 0.7
+print vdsat
+
+* Check saturation condition
+if @m2[vds] > vdsat
+  echo "M2 is in saturation at Vout_min"
+else
+  echo "WARNING: M2 not in saturation at Vout_min"
+end
+
+quit
+.endc
+
+.end

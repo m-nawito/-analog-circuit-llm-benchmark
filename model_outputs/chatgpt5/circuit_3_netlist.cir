@@ -1,0 +1,67 @@
+* GF180nm Source Follower Buffer (NMOS follower + NMOS current-sink mirror)
+* Target: ID = 200uA, Av >= 0.8 @10kHz, Rout <= 1kΩ, CL=5pF, VDD=3.3V±5%
+
+***********************
+* Models (GF180 3.3V) *
+***********************
+.include "GF180nm_sm141064_simplified.txt"
+
+***************
+* Parameters  *
+***************
+.param VDD = 3.3
+.param ID  = 200u
+* Follower device sizing (strong gm, safe L)
+.param Lf = 0.5u
+.param Wf = 30u
+* Current mirror devices (higher ro & compliance)
+.param Lsink = 1u
+.param Wsink = 50u
+* Estimate of VGS for the 200 uA diode device (tweak if you like)
+.param VGSref = 0.95
+.param Rbias  = (VDD - VGSref)/ID
+
+***************
+* Sources     *
+***************
+VDD  vdd  0   {VDD}
+* Small-signal input: bias ~1.3 V, AC magnitude = 1 (useful for Av directly)
+VIN  in   0   DC 1.3  AC 1
+
+***********************
+* Core buffer circuit *
+***********************
+* M1: NMOS source follower (Drain=VDD, Gate=IN, Source=OUT, Bulk=0)
+M1   vdd  in  out  0   nmos_3p3  W={Wf}   L={Lf}
+
+* NMOS current sink: M2 mirrors M3's diode current
+M2   out  vb  0    0   nmos_3p3  W={Wsink} L={Lsink}
+M3   vb   vb  0    0   nmos_3p3  W={Wsink} L={Lsink}
+Rb   vdd  vb  {Rbias}
+
+* Load capacitance
+CL   out  0   5p
+
+* Test current source used only for .tf (set to 0 A in bias/AC)
+ITEST out  0  0
+
+***************
+* Analyses    *
+***************
+.temp 27
+.op
+
+* AC gain vs frequency (Av is |V(out)/V(in)| since AC(VIN)=1)
+.ac dec 200 10 100Meg
+.meas ac AV_10k     FIND mag(v(out)/v(in)) AT=10k
+.meas ac AVdB_10k   FIND 20*log10(mag(v(out)/v(in))) AT=10k
+
+* Output resistance (small-signal DC)
+.tf v(out) ITEST
+
+*****************
+* Corner check  *
+*****************
+.step param VDD list 3.135 3.3 3.465
+
+.end

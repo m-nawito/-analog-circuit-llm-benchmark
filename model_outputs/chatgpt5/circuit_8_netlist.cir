@@ -1,0 +1,77 @@
+* Single-Stage OTA (NMOS diff pair + PMOS mirror) for GF180 3.3V (Typical)
+* Targets: Av >= 40 dB, GBW >= 10 MHz, PM >= 60 deg, CL = 10 pF, I_total = 50 uA
+
+*************** Models ***************
+.include "GF180nm_sm141064_simplified.txt"
+*.include "/full/path/to/GF180nm_sm141064_simplified.txt"
+
+*************** Global / Params ***************
+.option reltol=1e-4 abstol=1e-12 vntol=1e-6
+.temp 27
+.param VDD=3.3
+.param VCM=1.65
+
+*************** OTA Subcircuit ***************
+* Pins: INP INM OUT VDD VSS
+.subckt OTA1 INP INM OUT VDD VSS
+
+* Device sizes (meters)
+.param WN=50u  LN_N=1.2u
+.param WP=100u LP=1.2u
+
+* Nodes
+* xL  : left internal node (mirror diode)
+* NTAIL: tail node
+
+* NMOS input pair
+M1 OUT  NTAIL INP  VSS nmos_3p3 W={WN} L={LN_N}
+M2 xL   NTAIL INM  VSS nmos_3p3 W={WN} L={LN_N}
+
+* PMOS current-mirror load (1:1)
+* M3 is diode-connected; M4 mirrors to the OUT branch
+M3 xL   xL   VDD  VDD pmos_3p3 W={WP} L={LP}
+M4 OUT  xL   VDD  VDD pmos_3p3 W={WP} L={LP}
+
+* Tail current source (sets total bias = 50 uA)
+I_TAIL NTAIL VSS DC 50u
+
+* Feed-forward R-C (zero for phase margin)
+RZ OUT NZ 2k
+CC NZ  xL 1p
+
+.ends OTA1
+
+*************** Testbench ***************
+VDD  VDD  0  {VDD}
+
+* Differential AC drive: +0.5/-0.5 VAC gives 1 V_diff
+VINP INP  0  DC {VCM}  AC 0.5
+VINM INM  0  DC {VCM}  AC -0.5
+
+* Instantiate OTA
+XOTA INP INM OUT VDD 0 OTA1
+
+* Load capacitor
+CL   OUT 0 10p
+
+*************** Analyses ***************
+* DC operating point
+.op
+
+* Open-loop AC around the bias point
+.ac dec 200 1 1e9
+
+* Measurements:
+* DC gain in dB at ~1 Hz (open-loop, since AC=1Vdiff → V(out) = gain in V/V)
+.meas ac A0_dB  FIND vdb(OUT) AT=1
+
+* Unity-gain frequency (0 dB crossing)
+*.meas ac UGF    WHEN vdb(OUT)=0
+
+* Phase at UGF (deg). Phase margin ≈ 180 + this value
+.meas ac PHASE_UGF FIND vp(OUT) AT=UGF
+
+* Optional: supply tolerance sweep (uncomment to check ±5%)
+*.step param VDD list 3.135 3.3 3.465
+
+.end

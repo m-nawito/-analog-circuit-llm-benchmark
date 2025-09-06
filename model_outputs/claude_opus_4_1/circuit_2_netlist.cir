@@ -1,0 +1,60 @@
+* Common Source Amplifier - GF180nm Process
+* Target: |Av| >= 20dB at 1kHz with ID = 100uA
+
+.title Common Source Amplifier Design
+
+* Include model file (provided separately)
+.include GF180nm_sm141064_simplified.txt
+
+* Power supply
+VDD vdd 0 DC 3.3
+
+* Input signal source
+Vin in 0 DC 0 AC 1m
+
+* Biasing resistors
+R1 vdd vg 300k
+R2 vg 0 100k
+
+* Load resistor
+RD vdd vd 22k
+
+* NMOS transistor (W=177um, L=0.36um)
+M1 vd vg 0 0 nmos_3p3 W=177u L=0.36u
+
+* Coupling capacitors
+Cin in vg 10u
+Cout vd out 22u
+
+* Load for AC analysis
+RL out 0 10k
+CL out 0 1p
+
+* Analysis commands
+.control
+* DC operating point
+op
+print all
+
+* Check DC operating point
+echo "DC Operating Point:"
+echo "VGS = " v(vg)
+echo "VDS = " v(vd)
+echo "ID = " i(vdd)
+echo ""
+
+* AC analysis from 1Hz to 100kHz
+ac dec 100 1 100k
+
+* Calculate and display gain at 1kHz
+echo "AC Analysis Results at 1kHz:"
+meas ac gain_mag find vdb(out) at=1k
+meas ac gain_phase find vp(out) at=1k
+echo ""
+
+* Plot frequency response
+plot vdb(out) xlabel 'Frequency (Hz)' ylabel 'Gain (dB)' title 'Common Source Amplifier Frequency Response'
+plot vp(out) xlabel 'Frequency (Hz)' ylabel 'Phase (degrees)' title 'Phase Response'
+
+.endc
+.end

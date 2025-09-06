@@ -1,9 +1,6 @@
-Circuit 2: Common Source Amplifier
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Common Source Amplifier with the following specifications:
 
-Objective: Design a single-stage common source amplifier with specified voltage gain
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - Bias current: ID = 100μA
 - Voltage gain: |Av| ≥ 20dB (≥10 V/V)
 - Load resistance: RL = 10kΩ
@@ -12,13 +9,19 @@ Specifications:
 - Frequency of interest: 1kHz
 - Temperature: 27°C
 - Process corner: Typical
-
-Success Criteria: |Av| ≥ 20dB at 1kHz with ID = 100μA ± 20%
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC + AC analysis
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: |Av| ≥ 20dB at 1kHz with ID = 100μA ± 20%
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

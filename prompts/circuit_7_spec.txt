@@ -1,24 +1,27 @@
-Circuit 7: Cascode Current Mirror
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Cascode Current Mirror with the following specifications:
 
-Objective: Design a cascode current mirror with improved output impedance
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - Reference current: Iref = 20μA
 - Current ratio: Iout/Iref = 1:1
 - Output impedance: Rout ≥ 1MΩ
-- Minimum output voltage: Vout_min = 0.4V
+- Minimum output voltage: Vout_min = 0.6V
 - Current accuracy: ±5%
 - Load capacitance: CL = 1pF
 - Temperature: 27°C
 - Process corner: Typical
-
-Success Criteria: Iout = 20μA ± 5% and Rout ≥ 1MΩ
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC + AC analysis
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: Iout = 20μA ± 5% and Rout ≥ 1MΩ
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

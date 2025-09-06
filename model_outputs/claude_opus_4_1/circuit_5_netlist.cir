@@ -1,0 +1,70 @@
+* Differential Pair Circuit - GF180nm 3.3V
+* Specifications: Ad >= 15dB, CMRR >= 40dB, Itail = 200uA
+
+.title Differential Pair with Resistive Load
+
+* Include GF180nm models
+.include GF180nm_sm141064_simplified.txt
+
+* Power supply
+VDD vdd 0 DC 3.3
+
+* Input signals
+* Common mode voltage
+VCM vcm 0 DC 1.65
+* Differential input: +1mV and -1mV around VCM
+VIN_P vin_p vcm DC 0 AC 0.001
+VIN_N vin_n vcm DC 0 AC -0.001
+
+* Differential pair core
+* Input transistors
+M1 vout_n vin_p vs 0 nmos_3p3 W=20u L=0.23u
+M2 vout_p vin_n vs 0 nmos_3p3 W=20u L=0.23u
+
+* Tail current source
+M3 vs vbias 0 0 nmos_3p3 W=30u L=0.3u
+
+* Load resistors
+RL1 vdd vout_n 5k
+RL2 vdd vout_p 5k
+
+* Bias generation for tail current source
+* Resistive divider to generate Vbias = 0.9V
+R1 vdd vbias 20k
+R2 vbias 0 7k
+
+* Optional: Bypass capacitor for bias stability
+Cbias vbias 0 10p
+
+* Output load capacitors (as specified)
+CL1 vout_p 0 1p
+CL2 vout_n 0 1p
+
+* Analysis commands
+* Operating point
+.op
+
+* AC analysis for gain and frequency response
+.ac dec 100 1 1G
+
+* Measure differential gain at 1kHz
+.meas ac Ad_dB find vdb(vout_p,vout_n) at=1k
+.meas ac Ad_mag find vm(vout_p,vout_n) at=1k
+
+* For CMRR measurement, need separate common-mode test
+* Save operating point for all nodes
+.save all
+
+* Control commands
+.control
+run
+* Display operating point
+print all
+* Display AC results
+print Ad_dB Ad_mag
+* Plot differential output
+plot vdb(vout_p,vout_n) ylabel 'Differential Gain (dB)' xlabel 'Frequency (Hz)'
+plot ph(vout_p,vout_n) ylabel 'Phase (degrees)' xlabel 'Frequency (Hz)'
+.endc
+
+.end

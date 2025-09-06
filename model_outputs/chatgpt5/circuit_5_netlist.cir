@@ -1,0 +1,77 @@
+* GF180 3.3V Differential Pair with Resistive Loads (Typical, 27C)
+* Meets: Ad >= 15 dB (diff-to-diff) @ 1 kHz, CMRR >= 40 dB (ideal tail sink)
+
+********* Models *********
+* Assumes model file is in the same directory. Adjust path if needed.
+.include "GF180nm_sm141064_simplified.txt"
+
+********* Parameters *********
+.param VDD=3.3
+.param VCM=1.65
+.param RL=5k
+.param WN=24u
+.param LnnN=0.5u
+
+* AC drive parameters are altered inside the .control block below
+.param Adiff=0     ; differential AC amplitude (V)
+.param Acm=0       ; common-mode AC amplitude (V)
+
+********* Supplies *********
+VDD vdd 0 {VDD}
+
+********* Inputs (bias + AC) *********
+* DC is the common-mode bias; AC is split into differential and common-mode parts:
+* vip AC -> (Acm + Adiff), vin AC -> (Acm - Adiff)
+Vip vip 0 dc {VCM} ac {Acm + Adiff}
+Vin vin 0 dc {VCM} ac {Acm - Adiff}
+
+********* Loads *********
+RLP vdd vop {RL}
+RLN vdd von {RL}
+
+********* Differential Pair *********
+* NMOS devices (bodies tied to 0)
+M1 vop vip tail 0 nmos_3p3 W={WN} L={LnnN}
+M2 von vin tail 0 nmos_3p3 W={WN} L={LnnN}
+
+********* Tail current sink (ideal) *********
+* Sinks 200 uA from the source node of the pair to ground
+ITAIL tail 0 DC 200u
+
+********* Analyses *********
+.temp 27
+.op
+* Default AC line here is for safety; the .control block sets it explicitly
+.ac lin 1 1k 1k
+
+********* Measurements *********
+* The .control block runs two sweeps (diff, then common-mode) and measures both.
+
+.control
+  set noaskquit
+
+  * ---------- Differential run ----------
+  alterparam Adiff=1e-3
+  alterparam Acm=0
+  op
+  ac lin 1 1k 1k
+  * Differential gain in dB: |Vout_diff| / |Vin_diff| at 1 kHz
+  meas ac Ad_dB  param='vdb(vop,von) - vdb(vip,vin)' 
+
+  * Report DC operating points of interest (tail current should be ~200 uA)
+  meas op Itail_dc  param='i(ITAIL)'
+
+  * ---------- Common-mode run ----------
+  alterparam Adiff=0
+  alterparam Acm=1e-3
+  op
+  ac lin 1 1k 1k
+  * Common-mode gain in dB: |Vout_diff| / |Vin_cm| at 1 kHz
+  meas ac Acm_dB param='vdb(vop,von) - vdb(vip)'
+
+  * Notes:
+  * CMRR_dB = Ad_dB - Acm_D_B  (compute from the two reported values)
+
+.endc
+
+.end

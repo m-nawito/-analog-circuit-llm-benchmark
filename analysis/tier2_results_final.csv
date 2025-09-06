@@ -1,0 +1,12 @@
+Circuit_ID,Circuit_Name,Model,First_Run_Success,Post_Cleanup_Success,Error_Type,Error_Details
+# Evaluation scales:,,,,,,
+# First_Run_Success: Yes / No,,,,,,
+# Post_Cleanup_Success: Yes / No  ,,,,,,
+# Error_Type: Formatting / Syntax / Hallucination / None,,,,,,
+"# Error_Details: Brief description of main errors or ""None""",,,,,,
+# ,,,,,,
+# Basic cleanup includes: Remove code fences, fix Unicode (µ→u, Ω→ohm), add .end, fix whitespace,,
+#,,,,,,
+# Example entries:,,,,,,
+# 1,Single Transistor Switch,Claude,No,Yes,Formatting,Missing .end statement
+# 1,Single Transistor Switch,ChatGPT5,No,No,Hallucination,Unknown device model MOS_N

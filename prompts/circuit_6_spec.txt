@@ -1,26 +1,29 @@
-Circuit 6: Differential Pair with Current Mirror Load
+Given these SPICE models GF180nm_sm141064_simplified.txt, design a Differential Pair with Current Mirror Load with the following specifications:
 
-Objective: Design a differential pair with active current mirror load
-
-Specifications:
-- Supply voltage: VDD = 1.8V
+- Supply voltage: VDD = 3.3V
 - Tail current: Itail = 100μA
 - Differential gain: Ad ≥ 25dB (≥17.8 V/V)
 - Single-ended output (from one drain)
 - Output resistance: Rout ≥ 50kΩ
-- Input common-mode voltage: VCM = 0.9V
+- Input common-mode voltage: VCM = 1.65V
 - Differential input signal: 1mV
 - Load capacitance: CL = 2pF
 - Frequency of interest: 1kHz
 - Temperature: 27°C
 - Process corner: Typical
-
-Success Criteria: Ad ≥ 25dB and Rout ≥ 50kΩ at 1kHz
-
-General Conditions:
 - Process: GF 180nm CMOS
 - Supply voltage tolerance: ±5%
 - Simulation: DC + AC analysis
 - All transistor widths ≥ 0.22μm
 - All transistor lengths ≥ 0.18μm
 - SPICE simulator: NGSPICE
+- Success Criteria: Ad ≥ 25dB and Rout ≥ 50kΩ at 1kHz
+
+Explain your design decisions and calculations in detail, including:
+- Design approach and topology choice
+- All equations used
+- Component value calculations
+- Testbench approach and analysis choice
+- Verification of operating conditions
+
+Provide the complete NGSPICE netlist. Ensure that the output netlist is completely runnable and compatible with NGSPICE.

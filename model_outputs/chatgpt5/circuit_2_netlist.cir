@@ -1,0 +1,77 @@
+* GF180nm Common-Source Amplifier @ VDD=3.3V, ID~100uA, Av>=20 dB @1kHz
+* Typical 3.3V NMOS/PMOS models (BSIM4) - include file provided by user
+.include "GF180nm_sm141064_simplified.txt"
+
+******* Parameters ***********************************************************
+.param  VDD=3.3
+.param  L1=0.5u
+* Bias target: Iref ~20uA -> Vov ~0.11 V -> Wref ~15.6u for L=0.5u (first cut)
+.param  Wref=15.6u
+* Main device current scaling K ~ 5 => ID1 ~100uA
+.param  Kscale=1.0           ; stepped 0.8/1.0/1.2 to emulate ID ±20%
+.param  W1 = {Kscale*5*Wref} ; ~78u at Kscale=1
+.param  RD=20k
+.param  RB=124k              ; sets Iref approx 20uA with VGS ~0.81V at 3.3V
+.param  RG=10meg
+.param  Cin=1u
+.param  Cout=1u
+.param  RL=10k
+.param  CL=1p
+.param  RSIG=50
+
+******* Supplies *************************************************************
+VDD vdd 0 {VDD}
+
+******* Bias generator (diode-connected NMOS) *******************************
+* Diode NMOS defines Vbias ~= Vth + Vov; current set by RB from VDD.
+MREF vbias vbias 0 0 nmos_3p3 W={Wref} L={L1}
+RB1  vdd   vbias  {RB}
+
+******* Amplifier core *******************************************************
+* Common-source NMOS with resistive load RD to VDD
+M1   out   gate  0 0 nmos_3p3 W={W1}  L={L1}
+RD1  vdd   out   {RD}
+
+* Gate DC tie to bias, AC input via coupling cap
+RG1  gate  vbias {RG}
+
+******* Input source and coupling ********************************************
+VIN  in    0     AC 1m
+RSRC in    0     {RSIG}
+CIN1 in    gate  {Cin}
+
+******* Output coupling to the specified load ********************************
+COUT1 out  load  {Cout}
+RLOAD load 0     {RL}
+CLOAD load 0     {CL}
+
+******* Analyses *************************************************************
+.temp 27
+
+* DC operating point
+.op
+
+* AC: wide sweep, but we'll measure at 1 kHz
+.ac dec 100 10 100Meg
+
+******* Measurements *********************************************************
+* Drain current of M1 (positive for current into the drain)
+.meas op  ID_M1  param='@M1[id]'
+.meas op  VOUTDC param='v(out)'
+
+* Midband gain at 1 kHz, from input source node "in" to the load node "load"
+* Av_dB = Vout_dB - Vin_dB at 1 kHz
+.meas ac AV_dB  find (vdb(load) - vdb(in)) at=1k
+.meas ac AV_mag param='mag(v(load)/v(in))' at=1k
+
+* Helpful: percent deviation of ID from 100uA at OP
+.meas op ID_pct  param='100*(@M1[id]/100u - 1)'
+
+******* Sweeps for spec verification *****************************************
+* Supply tolerance ±5%
+.step param VDD list 3.135 3.3 3.465
+
+* Bias spread (emulate ID = 80uA, 100uA, 120uA via W scaling)
+.step param Kscale list 0.8 1.0 1.2
+
+.end

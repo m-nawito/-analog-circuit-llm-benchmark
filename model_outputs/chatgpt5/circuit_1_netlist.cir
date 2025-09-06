@@ -1,0 +1,84 @@
+* GF180nm 3.3V Single-Transistor NMOS Switch (Typical, 27C)
+* Low-side switch; body tied to ground; NGSPICE-compatible.
+
+***************************************
+* Models
+***************************************
+.include "GF180nm_sm141064_simplified.txt"
+
+***************************************
+* Parameters and temperature
+***************************************
+.temp 27
+.param Lsw=0.18u
+.param Wsw=2.0u          ; chosen to meet Ron <= 500Ω @ VGS=3.3V, ID=1mA
+.param RLOAD=10k
+.param VDDval=3.3
+.param ITEST=1m          ; forced current for Ron extraction (enabled in control)
+
+***************************************
+* Supplies
+***************************************
+VDD  VDD   0   {VDDval}
+VG   G     0   0          ; gate source; its DC value will be altered in .control
+
+***************************************
+* Functional test path with RL
+***************************************
+RL1  VDD   D   {RLOAD}
+
+***************************************
+* Device under test (NMOS, 3.3V thick-oxide)
+* Drain  Gate  Source  Bulk
+Msw  D     G     0      0    nmos_3p3  W={Wsw} L={Lsw}
+
+***************************************
+* Current source for Ron extraction (disabled at first)
+***************************************
+ITEST VDD  D   DC 0
+
+***************************************
+* Analyses and measurements
+***************************************
+.control
+set noaskquit
+
+* -------- 1) Functional check with RL and logic levels --------
+* VDD at nominal, input low then high
+alter VDD 3.3
+alter VG 0
+op
+echo "Functional @VDD=3.3V, VIN=0V"
+print v(d) i(VDD)
+
+alter VG 3.3
+op
+echo "Functional @VDD=3.3V, VIN=3.3V"
+print v(d) i(VDD)
+
+* Supply tolerance sweep @ VIN=HIGH (gate tied to VDD)
+foreach v 3.135 3.3 3.465
+  alter VDD $v
+  alter VG  $v
+  op
+  meas op ID_RL_$v  param -i(VDD)
+  meas op VOUT_RL_$v find v(d)
+end
+
+* -------- 2) Ron extraction at ID=1mA, VGS=3.3V --------
+* Disable the RL path so the current source sets ID cleanly
+alter RL1 1e12
+alter VG 3.3
+alter VDD 3.3
+alter ITEST 1m
+op
+meas op RON_nom param v(d)/1m
+
+* Optional: sweep current to see Ron vs ID
+dc ITEST 0 1.5m 0.1m
+meas dc RON_at_1m find v(d)/i(ITEST) when i(ITEST)=1m
+
+write gf180_switch.raw
+.endc
+
+.end

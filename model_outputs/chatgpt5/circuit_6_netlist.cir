@@ -1,0 +1,61 @@
+* Diff Pair w/ PMOS Current-Mirror Load (GF180 3.3V, Typical)
+* Success criteria: Ad >= 25 dB at 1 kHz; Rout >= 50 kOhm
+
+.include GF180nm_sm141064_simplified.txt
+* If needed, use absolute path:
+* .include "/mnt/data/GF180nm_sm141064_simplified.txt"
+
+.param VDD=3.3  VCM=1.65  ITAIL=100u  CL=2p
+.temp 27
+.options post nomod
+
+* -------------------- Supplies --------------------
+VDD   vdd   0  {VDD}
+
+* -------------------- Inputs ----------------------
+* Differential small-signal: +0.5mV / -0.5mV -> 1mV diff
+VINP  in_p  0  DC {VCM}  AC 0.5m
+VINN  in_n  0  DC {VCM}  AC -0.5m
+
+* -------------------- Differential Pair -----------
+* NMOS inputs (increase L to boost ro)
+M1   nd1   in_p  ntail  0   nmos_3p3  L=0.6u  W=12u
+M2   out   in_n  ntail  0   nmos_3p3  L=0.6u  W=12u
+
+* PMOS mirror load (M3 diode-connected, M4 mirrors to OUT)
+M3   nd1   nd1   vdd    vdd pmos_3p3  L=0.6u  W=24u
+M4   out   nd1   vdd    vdd pmos_3p3  L=0.6u  W=24u
+
+* -------------------- Tail Current Source ---------
+* Simple NMOS mirror: MREF (diode) sets ~ITAIL via RB; MTAIL mirrors 1:1
+MTAIL ntail nbias 0     0   nmos_3p3  L=1.2u  W=24u
+MREF  nbias nbias 0     0   nmos_3p3  L=1.2u  W=24u
+RB    vdd   nbias 24k
+CBIAS nbias 0     100n
+
+* -------------------- Load ------------------------
+CLOAD out 0 {CL}
+
+* -------------------- Output resistance probe -----
+* 0-V source to allow .tf input resistance at OUT
+VX    out   0  0
+
+* -------------------- Analyses --------------------
+.op
+
+* Small-signal Rout (DC ≈ Rout at 1 kHz because |1/jwCL| ~ 80 MΩ at 1k)
+.tf V(out) VX
+
+* AC gain run (includes CL)
+.ac dec 200 1 10MEG
+
+* --- Measurements at 1 kHz ---
+* Differential gain Ad = Vout_dB - Vdiff_dB
+.meas ac OUT_DB FIND vdb(out) AT=1k
+.meas ac IN_DB  FIND vdb(in_p,in_n) AT=1k
+.meas ac AD_DB  PARAM='OUT_DB - IN_DB'
+.meas ac AD_VV  PARAM='10**(AD_DB/20)'
+
+* You can also look at pole: -3 dB bandwidth via peak search if desired.
+
+.end
